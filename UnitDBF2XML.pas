@@ -7,7 +7,7 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ComCtrls, Data.DB, dbf;
 
 type
-  TForm1 = class(TForm)
+  TFormMain = class(TForm)
     Button: TButton;
     OpenDialog: TOpenDialog;
     ProgressBar: TProgressBar;
@@ -20,18 +20,20 @@ type
   end;
 
 var
-  Form1: TForm1;
+  FormMain: TFormMain;
 
 implementation
 
 {$R *.dfm}
 
-procedure TForm1.ButtonClick(Sender: TObject);
+procedure TFormMain.ButtonClick(Sender: TObject);
 begin
+
   if not OpenDialog.Execute then begin
     ShowMessage ('Wha?');
     Exit;
   end;
+
   dbf.FilePathFull := ExtractFilePath (OpenDialog.FileName);
   dbf.TableName := ExtractFileName (OpenDialog.FileName);
 
@@ -39,7 +41,14 @@ begin
   dbf.Active := true;
   ProgressBar.Enabled := true;
   ProgressBar.Max := dbf.RecordCount;
-  ProgressBar.StepBy (30);
+
+  dbf.First;
+
+  while (not dbf.Eof) do begin
+    dbf.Next;
+    ProgressBar.StepIt;
+  end;
+
 end;
 
 end.
