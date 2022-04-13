@@ -6,6 +6,9 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ComCtrls, Data.DB, dbf;
 
+const
+  Version = '1.0.0';
+
 type
   TFormMain = class(TForm)
     Button: TButton;
