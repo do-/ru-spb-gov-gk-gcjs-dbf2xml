@@ -4,6 +4,6 @@
 
 # Как использовать
 
-Для сборки программы можно воспользоваться любым компилятором, совместимым с Borland Delphi: в частности, бесплатно доступным [Delphi Community Edition](https://www.embarcadero.com/ru/products/delphi/starter/free-download).
+Для сборки программы можно воспользоваться любой средой разработки, совместимой с Delphi: в частности, бесплатно доступным [Delphi Community Edition](https://www.embarcadero.com/ru/products/delphi/starter/free-download).
 
 Проект использует внешнюю библиотеку с открытыми исходными текстами [TDbf](http://tdbf.sourceforge.net/). Перед компиляцией основной программы необходимо убедиться, что этот компонент установлен согласно инструкции.
