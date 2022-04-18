@@ -267,10 +267,12 @@ begin
   Write (XmlFile, '"/>');
 end;
 
+
 procedure TFormMain.ProcessRecord ();
 var
   i, n: integer;
   f2a: TDictionary <string, TStrings>;
+  code: string;
 
   procedure split (FieldName: String);
   var
@@ -281,6 +283,11 @@ var
     f2a.Add (FieldName, list);
   end;
 
+  function Verify (): string;
+  begin
+    exit ('00');
+  end;
+
 begin
 
   f2a := TDictionary <string, TStrings>.Create ();
@@ -289,6 +296,8 @@ begin
   split ('SQ_PAY');
   split ('MC_CODE');
   split ('OWN_TYPE');
+
+  code := Verify;
 
   n := f2a ['MC_ACC'].Count;
 
@@ -305,6 +314,9 @@ begin
     CloseElementPIN ();
   end;
 
+  dbf.Edit;
+  dbf.FieldByName('RES_CODE').Value := code;
+  dbf.Post;
   dbf.Next;
   ProgressBar.StepIt;
 
