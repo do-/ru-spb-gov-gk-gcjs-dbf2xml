@@ -35,6 +35,7 @@ type
     procedure WriteStringAttr2 (FieldName: String; AttrName: String);
     procedure OpenElementPIN ();
     procedure CloseElementPIN ();
+    procedure WriteElementRSO_ACC (i: integer);
     procedure WriteElementREP_ACC ();
   public
     { Public declarations }
@@ -222,6 +223,20 @@ begin
   Writeln (XmlFile, '</PIN>');
 end;
 
+procedure TFormMain.WriteElementRSO_ACC (i: integer);
+var
+  pre: string;
+begin
+  pre := 'RSO' + IntToStr (i);
+  if dbf.FieldByName(pre + '_ACC').IsNull then exit;
+  Writeln (XmlFile);
+  Write (XmlFile, '  <RSO_ACC');
+  WriteStringAttr2 (pre + '_ACC', 'id');
+  WriteStringAttr (pre + '_CODE');
+  WriteStringAttr (pre + '_NAME');
+  Write (XmlFile, '/>');
+end;
+
 procedure TFormMain.WriteElementREP_ACC ();
 begin
   if dbf.FieldByName('REP_ACC').IsNull then exit;
@@ -234,8 +249,11 @@ begin
 end;
 
 procedure TFormMain.ProcessRecord ();
+var
+  i: integer;
 begin
   OpenElementPIN ();
+  for I := 1 to 5 do WriteElementRSO_ACC (i);
   WriteElementREP_ACC ();
   CloseElementPIN ();
   dbf.Next;
