@@ -4,7 +4,7 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.DateUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ComCtrls, Data.DB, dbf, RegularExpressions;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ComCtrls, Data.DB, dbf, RegularExpressions, System.Generics.Collections;
 
 const
   Version = '1.0.0';
@@ -35,6 +35,7 @@ type
     procedure WriteStringAttr2 (FieldName: String; AttrName: String);
     procedure OpenElementPIN ();
     procedure CloseElementPIN ();
+    procedure WriteElementMC_ACC (i: integer; f2a: TDictionary <string, TStrings>);
     procedure WriteElementRSO_ACC (i: integer);
     procedure WriteElementREP_ACC ();
   public
@@ -130,6 +131,8 @@ begin
   for I := 1 to v.Length do begin
     c := v [i];
     case c of
+//      #10:;
+//      #13:;
       '<': Write (XmlFile, '&lt;');
       '>': Write (XmlFile, '&gt;');
       '&': Write (XmlFile, '&amp;');
@@ -180,7 +183,7 @@ var
   v: string;
 begin
   if dbf.FieldByName(FieldName).IsNull then exit;
-  v := dbf.FieldByName(FieldName).AsString;
+  v := dbf.FieldByName(FieldName).AsString.Trim;
   if v.Length = 0 then Exit;
   if (AttrName = 'N_LIVE') and (v.Contains('/')) then Exit;
   Write (XmlFile, ' ');
@@ -248,16 +251,63 @@ begin
   Write (XmlFile, '/>');
 end;
 
+procedure TFormMain.WriteElementMC_ACC (i: integer; f2a: TDictionary <string, TStrings>);
+begin
+  Writeln (XmlFile);
+  Write (XmlFile, '  <MC_ACC id="');
+  WriteAttrValue (f2a ['MC_ACC'] [i]);
+  Write (XmlFile, '" N_MC="');
+  WriteAttrValue (f2a ['N_MC'] [i]);
+  Write (XmlFile, '" SQ_PAY="');
+  WriteAttrValue (f2a ['SQ_PAY'] [i].Replace (',', '.'));
+  Write (XmlFile, '" OWN_TYPE="');
+  WriteAttrValue (f2a ['OWN_TYPE'] [i]);
+  Write (XmlFile, '" MC_CODE="');
+  WriteAttrValue (f2a ['MC_CODE'] [i]);
+  Write (XmlFile, '"/>');
+end;
+
 procedure TFormMain.ProcessRecord ();
 var
-  i: integer;
+  i, n: integer;
+  f2a: TDictionary <string, TStrings>;
+
+  procedure split (FieldName: String);
+  var
+    list: TStrings;
+  begin
+    list := TStringList.Create;
+    list.CommaText := dbf.FieldByName(FieldName).AsString;
+    f2a.Add (FieldName, list);
+  end;
+
 begin
-  OpenElementPIN ();
-  for I := 1 to 5 do WriteElementRSO_ACC (i);
-  WriteElementREP_ACC ();
-  CloseElementPIN ();
+
+  f2a := TDictionary <string, TStrings>.Create ();
+  split ('MC_ACC');
+  split ('N_MC');
+  split ('SQ_PAY');
+  split ('MC_CODE');
+  split ('OWN_TYPE');
+
+  n := f2a ['MC_ACC'].Count;
+
+  if
+    (n = f2a ['N_MC'].Count) and
+    (n = f2a ['SQ_PAY'].Count) and
+    (n = f2a ['MC_CODE'].Count) and
+    (n = f2a ['OWN_TYPE'].Count)
+  then begin
+    OpenElementPIN ();
+    for I := 0 to n - 1 do WriteElementMC_ACC (i, f2a);
+    for I := 1 to 5 do WriteElementRSO_ACC (i);
+    WriteElementREP_ACC ();
+    CloseElementPIN ();
+  end;
+
   dbf.Next;
   ProgressBar.StepIt;
+
 end;
 
 procedure TFormMain.ButtonClick(Sender: TObject);
