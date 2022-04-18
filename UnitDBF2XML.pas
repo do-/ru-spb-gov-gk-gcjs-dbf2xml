@@ -33,6 +33,9 @@ type
     procedure WriteDateAttr (FieldName: String);
     procedure WriteDecimalAttr (FieldName: String);
     procedure WriteStringAttr2 (FieldName: String; AttrName: String);
+    procedure OpenElementPIN ();
+    procedure CloseElementPIN ();
+    procedure WriteElementREP_ACC ();
   public
     { Public declarations }
   end;
@@ -84,7 +87,9 @@ procedure TFormMain.OpenXML (FileName: String);
 begin
   AssignFile(XmlFile, StringReplace (FileName, 'DBF', 'XML', []));
   Rewrite (XmlFile);
-  Writeln (XmlFile, '<?xml version="1.0" encoding="cp866" standalone="yes"?>');
+  Write (XmlFile, '<?xml version="1.0" encoding="cp');
+  Write (XmlFile, dbf.CodePage);
+  Writeln (XmlFile, '" standalone="yes"?>');
   Writeln (XmlFile, '<GU PERIOD="' + YYYY + '-' + MM + '" version="' + Version + '">');
 end;
 
@@ -184,7 +189,7 @@ begin
   Write (XmlFile, '"');
 end;
 
-procedure TFormMain.ProcessRecord ();
+procedure TFormMain.OpenElementPIN ();
 begin
   Write (XmlFile, ' <PIN');
   WriteStringAttr2 ('PIN', 'id');
@@ -209,8 +214,30 @@ begin
   WriteStringAttr ('N_LIVE');
   WriteDecimalAttr ('CHARGE_SUM');
   WriteStringAttr ('PRIORITET');
-  Writeln (XmlFile, '>');
-  Writeln (XmlFile, ' </PIN>');
+  Write (XmlFile, '>');
+end;
+
+procedure TFormMain.CloseElementPIN ();
+begin
+  Writeln (XmlFile, '</PIN>');
+end;
+
+procedure TFormMain.WriteElementREP_ACC ();
+begin
+  if dbf.FieldByName('REP_ACC').IsNull then exit;
+  Writeln (XmlFile);
+  Write (XmlFile, '  <REP_ACC');
+  WriteStringAttr2 ('REP_ACC', 'id');
+  WriteStringAttr ('REP_CODE');
+  WriteStringAttr ('REP_NAME');
+  Write (XmlFile, '/>');
+end;
+
+procedure TFormMain.ProcessRecord ();
+begin
+  OpenElementPIN ();
+  WriteElementREP_ACC ();
+  CloseElementPIN ();
   dbf.Next;
   ProgressBar.StepIt;
 end;
