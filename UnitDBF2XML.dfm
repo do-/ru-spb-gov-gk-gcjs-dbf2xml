@@ -38,6 +38,8 @@ object FormMain: TFormMain
   object Dbf: TDbf
     IndexDefs = <>
     TableLevel = 5
+    AfterOpen = DbfAfterOpen
+    AfterScroll = DbfAfterScroll
     Left = 344
     Top = 8
   end

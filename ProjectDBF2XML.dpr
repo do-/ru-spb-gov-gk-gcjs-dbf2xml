@@ -4,7 +4,6 @@ uses
   Vcl.Forms,
   UnitDBF2XML in 'UnitDBF2XML.pas' {FormMain, Version};
 
-
 {$R *.res}
 
 begin
