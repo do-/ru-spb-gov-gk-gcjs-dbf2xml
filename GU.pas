@@ -300,10 +300,23 @@ var
     exit (true);
   end;
 
+  function Verify11 (): Boolean;
+  var
+    s: string;
+    i: integer;
+  begin
+    for I := 0 to n - 1 do begin
+      s := f2a ['OWN_TYPE'] [i];
+      if (s <> '1') and (s <> '2') then exit (false);
+    end;
+    exit (true);
+  end;
+
   function Verify (): string;
   begin
     if not verify01 then exit ('01');
     if not verify07 then exit ('07');
+    if not verify11 then exit ('11');
     exit ('00');
   end;
 
