@@ -308,7 +308,12 @@ var
   function Verify23 (): Boolean;
   begin
     if not dbf.FieldByName ('MC_ACC').IsNull then exit (true);
-    exit (dbf.FieldByName ('LS_TYPE').AsInteger in [2, 3]);
+    exit (not dbf.FieldByName ('LS_TYPE').AsInteger in [2, 3]);
+  end;
+
+  function Verify32 (): Boolean;
+  begin
+    exit (dbf.FieldByName ('LS_TYPE').AsInteger in [1, 2, 3, 4]);
   end;
 
   function Verify11 (): Boolean;
