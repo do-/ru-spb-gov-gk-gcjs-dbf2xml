@@ -271,7 +271,7 @@ var
     f2a.Add (FieldName, list);
   end;
 
-  function VerifyNN (): Boolean;
+  function Verify01 (): Boolean;
   begin
     if dbf.FieldByName ('PIN').IsNull then exit (false);
     if dbf.FieldByName ('L_NAME').IsNull then exit (false);
@@ -293,9 +293,17 @@ var
     exit (true);
   end;
 
+  function Verify07 (): Boolean;
+  begin
+    if dbf.FieldByName ('END_DATE').IsNull then exit (true);
+    if dbf.FieldByName ('BEGIN_DATE').AsDateTime > dbf.FieldByName ('END_DATE').AsDateTime then exit (false);
+    exit (true);
+  end;
+
   function Verify (): string;
   begin
-    if not verifyNN then exit ('01');
+    if not verify01 then exit ('01');
+    if not verify07 then exit ('07');
     exit ('00');
   end;
 
