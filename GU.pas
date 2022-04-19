@@ -303,6 +303,12 @@ var
     exit (true);
   end;
 
+  function Verify23 (): Boolean;
+  begin
+    if not dbf.FieldByName ('MC_ACC').IsNull then exit (true);
+    exit (dbf.FieldByName ('LS_TYPE').AsInteger in [2, 3]);
+  end;
+
   function Verify11 (): Boolean;
   var
     s: string;
@@ -336,6 +342,7 @@ var
   function Verify (): string;
   begin
     if not verify01 then exit ('01');
+    if not verify23 then exit ('23');
     if not verify07 then exit ('07');
     if not verify15 then exit ('15');
     if not verify21 then exit ('21');
