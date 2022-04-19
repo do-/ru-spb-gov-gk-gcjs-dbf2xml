@@ -17,6 +17,7 @@ type
     YYYY: String;
     MM: String;
     YYYY_MM: String;
+    YYYYMM: String;
     procedure ProcessRecord ();
     procedure OpenFiles (FileName: String);
     procedure OpenDBF (FileName: String);
@@ -67,6 +68,7 @@ begin
   MM := name.Substring (7, 2);
   if not IsDigitsOnly (MM) then raise Exception.Create ('Некорректная цифра месяца: ' + MM);
 
+  YYYYMM := YYYY + MM;
   YYYY_MM := YYYY + '-' + MM;
 
   OpenDBF (FileName);
@@ -330,6 +332,11 @@ var
     );
   end;
 
+  function Verify25 (): Boolean;
+  begin
+    exit (dbf.FieldByName ('PERIOD').AsString = YYYYMM);
+  end;
+
   function Verify21 (): Boolean;
   begin
     if n <> f2a ['N_MC'].Count then exit (false);
@@ -342,11 +349,12 @@ var
   function Verify (): string;
   begin
     if not verify01 then exit ('01');
-    if not verify23 then exit ('23');
+    if not verify23 then exit ('23'); // yes, here
     if not verify07 then exit ('07');
     if not verify15 then exit ('15');
     if not verify21 then exit ('21');
     if not verify11 then exit ('11');
+    if not verify25 then exit ('25');
     exit ('00');
   end;
 
