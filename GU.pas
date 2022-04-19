@@ -316,6 +316,15 @@ var
     exit (dbf.FieldByName ('LS_TYPE').AsInteger in [1, 2, 3, 4]);
   end;
 
+  function Verify35 (): Boolean;
+  var
+    i: integer;
+  begin
+    if dbf.FieldByName ('LS_TYPE').AsInteger <> 3 then exit (true);
+    for I := 0 to n - 1 do if f2a ['OWN_TYPE'] [i] = '2' then exit (false);
+    exit (true);
+  end;
+
   function Verify11 (): Boolean;
   var
     s: string;
@@ -354,7 +363,9 @@ var
   function Verify (): string;
   begin
     if not verify01 then exit ('01');
-    if not verify23 then exit ('23'); // yes, here
+    if not verify32 then exit ('32'); // yes, here
+    if not verify35 then exit ('35');
+    if not verify23 then exit ('23');
     if not verify07 then exit ('07');
     if not verify15 then exit ('15');
     if not verify21 then exit ('21');
