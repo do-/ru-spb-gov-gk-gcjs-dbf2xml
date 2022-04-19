@@ -16,6 +16,7 @@ type
     XmlFile: TextFile;
     YYYY: String;
     MM: String;
+    YYYY_MM: String;
     procedure ProcessRecord ();
     procedure OpenFiles (FileName: String);
     procedure OpenDBF (FileName: String);
@@ -66,6 +67,8 @@ begin
   MM := name.Substring (7, 2);
   if not IsDigitsOnly (MM) then raise Exception.Create ('Некорректная цифра месяца: ' + MM);
 
+  YYYY_MM := YYYY + '-' + MM;
+
   OpenDBF (FileName);
   OpenXML (FileName);
 
@@ -86,7 +89,7 @@ begin
   Write (XmlFile, '<?xml version="1.0" encoding="cp');
   Write (XmlFile, dbf.CodePage);
   Writeln (XmlFile, '" standalone="yes"?>');
-  Writeln (XmlFile, '<GU PERIOD="' + YYYY + '-' + MM + '" version="' + Version + '">');
+  Writeln (XmlFile, '<GU PERIOD="' + YYYY_MM + '" version="' + Version + '">');
 end;
 
 procedure TGU.CloseFiles ();
@@ -312,11 +315,21 @@ var
     exit (true);
   end;
 
+  function Verify15 (): Boolean;
+  begin
+    exit (
+      DateToISO8601 (dbf.FieldByName('BEGIN_DATE').AsDateTime)
+        .Substring (0, 7)
+      <= YYYY_MM
+    );
+  end;
+
   function Verify (): string;
   begin
     if not verify01 then exit ('01');
     if not verify07 then exit ('07');
     if not verify11 then exit ('11');
+    if not verify15 then exit ('15');
     exit ('00');
   end;
 
