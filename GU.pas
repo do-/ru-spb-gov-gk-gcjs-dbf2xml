@@ -324,12 +324,22 @@ var
     );
   end;
 
+  function Verify21 (): Boolean;
+  begin
+    if n <> f2a ['N_MC'].Count then exit (false);
+    if n <> f2a ['SQ_PAY'].Count then exit (false);
+    if n <> f2a ['MC_CODE'].Count then exit (false);
+    if n <> f2a ['OWN_TYPE'].Count then exit (false);
+    exit (true);
+  end;
+
   function Verify (): string;
   begin
     if not verify01 then exit ('01');
     if not verify07 then exit ('07');
-    if not verify11 then exit ('11');
     if not verify15 then exit ('15');
+    if not verify21 then exit ('21');
+    if not verify11 then exit ('11');
     exit ('00');
   end;
 
@@ -341,28 +351,22 @@ begin
   split ('SQ_PAY');
   split ('MC_CODE');
   split ('OWN_TYPE');
+  n := f2a ['MC_ACC'].Count;
 
   code := Verify;
 
-  n := f2a ['MC_ACC'].Count;
-
-  if
-    (n = f2a ['N_MC'].Count) and
-    (n = f2a ['SQ_PAY'].Count) and
-    (n = f2a ['MC_CODE'].Count) and
-    (n = f2a ['OWN_TYPE'].Count)
-  then begin
-    OpenElementPIN ();
-    for I := 0 to n - 1 do WriteElementMC_ACC (i, f2a);
-    for I := 1 to 5 do WriteElementRSO_ACC (i);
-    WriteElementREP_ACC ();
-    CloseElementPIN ();
-  end;
-
   dbf.Edit;
-  dbf.FieldByName('RES_CODE').Value := code;
+  dbf.FieldByName ('RES_CODE').Value := code;
   dbf.Post;
   dbf.Next;
+
+  if code <> '00' then exit;
+
+  OpenElementPIN ();
+  for I := 0 to n - 1 do WriteElementMC_ACC (i, f2a);
+  for I := 1 to 5 do WriteElementRSO_ACC (i);
+  WriteElementREP_ACC ();
+  CloseElementPIN ();
 
 end;
 
