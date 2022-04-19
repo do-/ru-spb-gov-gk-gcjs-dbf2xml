@@ -271,8 +271,31 @@ var
     f2a.Add (FieldName, list);
   end;
 
+  function VerifyNN (): Boolean;
+  begin
+    if dbf.FieldByName ('PIN').IsNull then exit (false);
+    if dbf.FieldByName ('L_NAME').IsNull then exit (false);
+    if dbf.FieldByName ('F_NAME').IsNull then exit (false);
+    if dbf.FieldByName ('BNF_CAT').IsNull then exit (false);
+    if dbf.FieldByName ('INFO_DATE').IsNull then exit (false);
+    if dbf.FieldByName ('BEGIN_DATE').IsNull then exit (false);
+    if dbf.FieldByName ('N').IsNull then exit (false);
+    if dbf.FieldByName ('DISTR_ID').IsNull then exit (false);
+    if dbf.FieldByName ('BUILDING').IsNull then exit (false);
+    if dbf.FieldByName ('LS_TYPE').IsNull then exit (false);
+    if dbf.FieldByName ('N_LIVE').IsNull then exit (false);
+    if dbf.FieldByName ('N_MC').IsNull then exit (false);
+    if dbf.FieldByName ('SQ_PAY').IsNull then exit (false);
+    if dbf.FieldByName ('OWN_TYPE').IsNull then exit (false);
+    if dbf.FieldByName ('MC_ACC').IsNull then exit (false);
+    if dbf.FieldByName ('CHARGE_SUM').IsNull then exit (false);
+    if dbf.FieldByName ('PRIORITET').IsNull then exit (false);
+    exit (true);
+  end;
+
   function Verify (): string;
   begin
+    if not verifyNN then exit ('01');
     exit ('00');
   end;
 
