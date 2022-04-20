@@ -18,6 +18,7 @@ type
     MM: String;
     YYYY_MM: String;
     YYYYMM: String;
+    BNF_CATs: TStringList;
     procedure ProcessRecord ();
     procedure OpenFiles (FileName: String);
     procedure OpenDBF (FileName: String);
@@ -45,6 +46,8 @@ implementation
 constructor TGU.Create (_Dbf: TDbf);
 begin
   self.dbf := _dbf;
+  BNF_CATs := TStringList.Create;
+  BNF_CATs.DelimitedText := 'È1,È2,È3,03,04,71,61,07,81,17,18,19,08,Ô,Á,3,È,Ï,Ð,Í,Ã,Ö,Ä';
 end;
 
 function IsDigitsOnly (s: String): Boolean;
@@ -86,11 +89,9 @@ end;
 
 procedure TGU.OpenXML (FileName: String);
 begin
-  AssignFile(XmlFile, StringReplace (FileName, 'DBF', 'XML', []));
+  AssignFile(XmlFile, StringReplace (FileName, 'DBF', 'XML', []), CP_UTF8);
   Rewrite (XmlFile);
-  Write (XmlFile, '<?xml version="1.0" encoding="cp');
-  Write (XmlFile, dbf.CodePage);
-  Writeln (XmlFile, '" standalone="yes"?>');
+  Write (XmlFile, '<?xml version="1.0" encoding="utf-8" standalone="yes"?>');
   Writeln (XmlFile, '<GU PERIOD="' + YYYY_MM + '" version="' + Version + '">');
 end;
 
@@ -351,6 +352,11 @@ var
     exit (dbf.FieldByName ('PERIOD').AsString = YYYYMM);
   end;
 
+  function Verify09 (): Boolean;
+  begin
+    exit (BNF_CATs.IndexOf(dbf.FieldByName('BNF_CAT').AsString) >= 0);
+  end;
+
   function Verify21 (): Boolean;
   begin
     if n <> f2a ['N_MC'].Count then exit (false);
@@ -363,6 +369,7 @@ var
   function Verify (): string;
   begin
     if not verify01 then exit ('01');
+    if not verify09 then exit ('09');
     if not verify32 then exit ('32'); // yes, here
     if not verify35 then exit ('35');
     if not verify23 then exit ('23');
