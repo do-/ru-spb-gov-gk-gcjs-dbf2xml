@@ -247,18 +247,28 @@ end;
 
 procedure TGU.WriteElementMC_ACC (i: integer; f2a: TDictionary <string, TStrings>);
 begin
+
   Writeln (XmlFile);
+
   Write (XmlFile, '  <MC_ACC id="');
   WriteAttrValue (f2a ['MC_ACC'] [i]);
-  Write (XmlFile, '" N_MC="');
-  WriteAttrValue (f2a ['N_MC'] [i]);
+
+  if f2a ['MC_ACC'].Count = f2a ['N_MC'].Count then begin
+    Write (XmlFile, '" N_MC="');
+    WriteAttrValue (f2a ['N_MC'] [i]);
+  end;
+
   Write (XmlFile, '" SQ_PAY="');
   WriteAttrValue (f2a ['SQ_PAY'] [i].Replace (',', '.'));
+
   Write (XmlFile, '" OWN_TYPE="');
   WriteAttrValue (f2a ['OWN_TYPE'] [i]);
+
   Write (XmlFile, '" MC_CODE="');
   WriteAttrValue (f2a ['MC_CODE'] [i]);
+
   Write (XmlFile, '"/>');
+
 end;
 
 
@@ -290,7 +300,6 @@ var
     if dbf.FieldByName ('BUILDING').IsNull then exit (false);
     if dbf.FieldByName ('LS_TYPE').IsNull then exit (false);
     if dbf.FieldByName ('N_LIVE').IsNull then exit (false);
-    if dbf.FieldByName ('N_MC').IsNull then exit (false);
     if dbf.FieldByName ('SQ_PAY').IsNull then exit (false);
     if dbf.FieldByName ('OWN_TYPE').IsNull then exit (false);
     if dbf.FieldByName ('MC_ACC').IsNull then exit (false);
@@ -359,7 +368,6 @@ var
 
   function Verify21 (): Boolean;
   begin
-    if n <> f2a ['N_MC'].Count then exit (false);
     if n <> f2a ['SQ_PAY'].Count then exit (false);
     if n <> f2a ['MC_CODE'].Count then exit (false);
     if n <> f2a ['OWN_TYPE'].Count then exit (false);
@@ -367,8 +375,28 @@ var
   end;
 
   function Verify (): string;
+  var
+    n_mc_count:   integer;
+    n_all_null:   boolean;
+    n_mc_null:    boolean;
+    n_mc_differs: boolean;
+
+    pin: string;
+
   begin
+
     if not verify01 then exit ('01');
+
+    n_all_null   := dbf.FieldByName ('N_ALL').IsNull;
+    n_mc_count   := f2a ['N_MC'].Count;
+    n_mc_null    := n_mc_count = 0;
+    n_mc_differs := not n_mc_null and (n_mc_count <> n);
+
+    pin := dbf.FieldByName ('PIN').AsString;
+
+    if n_all_null and n_mc_null    then exit ('01');
+    if n_all_null and n_mc_differs then exit ('21');
+
     if not verify09 then exit ('09');
     if not verify32 then exit ('32'); // yes, here
     if not verify35 then exit ('35');
@@ -378,7 +406,11 @@ var
     if not verify21 then exit ('21');
     if not verify11 then exit ('11');
     if not verify25 then exit ('25');
+
+    if n_mc_differs then exit ('000');
+
     exit ('00');
+
   end;
 
 begin
@@ -398,7 +430,7 @@ begin
   dbf.Post;
   dbf.Next;
 
-  if code <> '00' then exit;
+  if (code <> '00') and (code <> '000') then exit;
 
   OpenElementPIN ();
   for I := 0 to n - 1 do WriteElementMC_ACC (i, f2a);
