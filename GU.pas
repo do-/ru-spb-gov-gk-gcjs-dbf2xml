@@ -229,8 +229,8 @@ begin
   Writeln (XmlFile);
   Write (XmlFile, '  <RSO_ACC');
   WriteStringAttr2 (pre + '_ACC', 'id');
-  WriteStringAttr (pre + '_CODE');
-  WriteStringAttr (pre + '_NAME');
+  WriteStringAttr2 (pre + '_CODE', 'RSO_CODE');
+  WriteStringAttr2 (pre + '_NAME', 'RSO_NAME');
   Write (XmlFile, '/>');
 end;
 
