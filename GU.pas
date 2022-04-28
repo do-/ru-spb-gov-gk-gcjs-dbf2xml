@@ -274,7 +274,7 @@ end;
 
 procedure TGU.ProcessRecord ();
 var
-  i, n: integer;
+  n: integer;
   f2a: TDictionary <string, TStrings>;
   code: string;
 
@@ -413,6 +413,17 @@ var
 
   end;
 
+  procedure WriteRecord ();
+  var
+    i: integer;
+  begin
+    OpenElementPIN ();
+    for I := 0 to n - 1 do WriteElementMC_ACC (i, f2a);
+    for I := 1 to 5 do WriteElementRSO_ACC (i);
+    WriteElementREP_ACC ();
+    CloseElementPIN ();
+  end;
+
 begin
 
   f2a := TDictionary <string, TStrings>.Create ();
@@ -428,15 +439,10 @@ begin
   dbf.Edit;
   dbf.FieldByName ('RES_CODE').Value := code;
   dbf.Post;
+
+  if (code = '00') or (code = '000') then WriteRecord ();
+
   dbf.Next;
-
-  if (code <> '00') and (code <> '000') then exit;
-
-  OpenElementPIN ();
-  for I := 0 to n - 1 do WriteElementMC_ACC (i, f2a);
-  for I := 1 to 5 do WriteElementRSO_ACC (i);
-  WriteElementREP_ACC ();
-  CloseElementPIN ();
 
 end;
 
